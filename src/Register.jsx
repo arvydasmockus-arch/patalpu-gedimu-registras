@@ -62,6 +62,33 @@ export default function Register({ session }) {
     finally { setBusy(false); }
   }
 
+  async function deleteFault(fault) {
+    if (!window.confirm(`Ištrinti gedimą „${fault.title}“? Šio veiksmo atšaukti negalima.`)) return;
+    setBusy(true); setError(''); setNotice('');
+    try {
+      const { error } = await supabase.from('faults').delete().eq('id', fault.id).select('id').single();
+      if (error) throw error;
+      setFaults(items => items.filter(item => item.id !== fault.id));
+      setNotice('Gedimas ištrintas.');
+    } catch (error) { setError(`Nepavyko ištrinti gedimo: ${error.message}`); }
+    finally { setBusy(false); }
+  }
+
+  async function deleteRoom(room) {
+    const faultCount = faults.filter(fault => fault.room_id === room.id).length;
+    const consequence = faultCount ? ` Taip pat bus ištrinti visi ${faultCount} šios patalpos gedimai.` : '';
+    if (!window.confirm(`Ištrinti patalpą „${room.name}“?${consequence} Šio veiksmo atšaukti negalima.`)) return;
+    setBusy(true); setError(''); setNotice('');
+    try {
+      const { error } = await supabase.from('rooms').delete().eq('id', room.id).select('id').single();
+      if (error) throw error;
+      setRooms(items => items.filter(item => item.id !== room.id));
+      setFaults(items => items.filter(item => item.room_id !== room.id));
+      setNotice(faultCount ? 'Patalpa ir visi jos gedimai ištrinti.' : 'Patalpa ištrinta.');
+    } catch (error) { setError(`Nepavyko ištrinti patalpos: ${error.message}`); }
+    finally { setBusy(false); }
+  }
+
   async function signOut() {
     setBusy(true);
     try {
@@ -95,7 +122,7 @@ export default function Register({ session }) {
         <ul className="fault-list">{[...visibleFaults].sort((a, b) => Number(b.priority === 'high') - Number(a.priority === 'high')).map(fault => <li className="fault" key={fault.id}>
           <div className="fault-tags"><span className={fault.priority === 'high' ? 'badge urgent' : 'badge'}>{fault.priority === 'high' ? 'Skubus' : 'Įprastas'}</span><span className={fault.status === 'resolved' ? 'badge resolved' : 'badge pending'}>{fault.status === 'resolved' ? 'Sutvarkyta' : 'Užregistruota'}</span></div>
           <h3>{fault.title}</h3><p>{rooms.find(room => room.id === fault.room_id)?.name}</p>
-          <button className="secondary" disabled={busy} onClick={() => changeStatus(fault)}>{fault.status === 'resolved' ? 'Atverti iš naujo' : 'Pažymėti sutvarkytu'}</button>
+          <div className="card-actions"><button className="secondary" disabled={busy} onClick={() => changeStatus(fault)}>{fault.status === 'resolved' ? 'Atverti iš naujo' : 'Pažymėti sutvarkytu'}</button><button className="danger" disabled={busy} onClick={() => deleteFault(fault)}>Ištrinti</button></div>
         </li>)}</ul>
       </>)}
     </section>}
@@ -114,7 +141,7 @@ export default function Register({ session }) {
 
     {path === '/patalpos' && <>
       <section aria-labelledby="rooms-title"><h2 id="rooms-title">Mano patalpos</h2><p>Pridėkite kabinetus, kuriuose norėsite registruoti gedimus.</p>
-        {!loading && !error && (!rooms.length ? <p className="empty">Patalpų dar nėra. Pridėkite pirmą patalpą žemiau.</p> : <ul className="room-list">{rooms.map(room => <li key={room.id}><strong>{room.name}</strong><span>Gedimų: {faults.filter(fault => fault.room_id === room.id).length}</span></li>)}</ul>)}
+        {!loading && !error && (!rooms.length ? <p className="empty">Patalpų dar nėra. Pridėkite pirmą patalpą žemiau.</p> : <ul className="room-list">{rooms.map(room => <li key={room.id}><strong>{room.name}</strong><span>Gedimų: {faults.filter(fault => fault.room_id === room.id).length}</span><button className="danger" disabled={busy} onClick={() => deleteRoom(room)}>Ištrinti</button></li>)}</ul>)}
       </section>
       <section aria-labelledby="room-create-title"><h2 id="room-create-title">Pridėti patalpą</h2><form onSubmit={event => save(event, 'rooms')}>
         <label>Patalpos pavadinimas<input name="name" placeholder="Pvz., Kabinetas 212" maxLength={120} required /></label>
