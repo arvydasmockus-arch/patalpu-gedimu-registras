@@ -1,75 +1,34 @@
-# Projekto užbaigimas ir demonstracija
+# Integracijos ir patikros
 
-Oficialios nuorodos: [Supabase Database Webhooks](https://supabase.com/docs/guides/database/webhooks), [Vite diegimas Vercel](https://vercel.com/docs/frameworks/frontend/vite).
+## Diegimas
 
-## Vercel
+React sąsają aptarnauja Vite, o viešą programos versiją – Vercel. Supabase projekto URL ir viešasis publishable raktas pateikiami per `VITE_SUPABASE_URL` ir `VITE_SUPABASE_PUBLISHABLE_KEY`. Vietinė aplinka aprašyta `.env.example`; `.env.local` į Git neįtraukiamas.
 
-Prijunkite šio projekto GitHub saugyklą prie Vercel. Naudokite Vite projektą, komandą `npm run build` ir išvesties katalogą `dist`.
-Pridėkite abu README aprašytus `VITE_SUPABASE_*` aplinkos kintamuosius ir atlikite diegimą.
-Supabase Auth Site URL pakeiskite į gautą Vercel adresą. Pakeitus Vite aplinkos kintamuosius, reikia naujo diegimo.
-Viešą nuorodą įrašykite į README ir Notion.
+## Duomenų bazė ir prieigos kontrolė
 
-## Supabase → Zapier → Gmail
+`rooms` saugo vartotojui priklausančias patalpas, o `faults` – su jomis susietus gedimus. Gedimo prioritetas yra `normal` arba `high`; būsena – `registered` arba `resolved`. RLS taisyklės leidžia vartotojui pasiekti tik savo patalpas ir jų gedimus. Gedimą galima ištrinti atskirai; patalpos ištrynimas per `ON DELETE CASCADE` pašalina ir jos gedimus.
 
-Automatizavimas vykdomas serveryje: naršyklė tik įterpia gedimą į `faults`.
+Pradinė schema yra `supabase/001_initial.sql`. Gedimo būsenos migracija – `supabase/migrations/20261116182101_add_fault_status.sql`. Pakartojamas RLS patikrinimas – `supabase/check_rls.sql`.
 
-1. Zapier sukurkite Webhooks „Catch Hook“ ir nukopijuokite jo adresą.
-2. Supabase Database Webhooks sukurkite `public.faults` įvykio `INSERT` webhook į tą adresą. Adreso nedėkite į frontend ar Git.
-3. Užregistruokite vieną bandomą gedimą ir Zapier patikrinkite gautą įvykį.
-4. Filter žingsnyje praleiskite tik `type = INSERT`, `table = faults` ir `schema = public`.
-5. Paths skubiam keliui nustatykite `record.priority = high`, o įprastam – Fallback. Duomenų bazė leidžia tik `high` ir `normal`.
-6. Kiekvienoje šakoje prijunkite Gmail laiško siuntimą projekto savininko adresu. Skubaus laiško tema: „Skubus gedimas – [patalpos pavadinimas]“, įprasto: „Naujas gedimas – [patalpos pavadinimas]“. Pavadinimą įterpkite kaip dinaminį lauką.
-7. Pritaikykite `supabase/migrations/20261116161650_fault_webhook_room_name.sql`: webhook papildomas `record.room_name` ir `record.priority_name`. Trigger pirmame argumente išsaugomas Zapier adresas. Laiško turinyje perduokite patalpos pavadinimą, gedimo aprašymą ir lietuvišką prioritetą; UUID laiškuose nerodykite.
-8. Įjunkite automatizavimą ir patikrinkite abu prioritetus. Pakartotas webhook gali sukelti pakartotinį laišką; jei reikalinga deduplikacija, naudokite `record.id`.
+## Automatizavimas
 
-## Atliktų bandymų rezultatai
+Tik naujas `INSERT` į `public.faults` sukuria Supabase Database Webhook įvykį. Zapier filtras priima `INSERT` įrašus iš `public.faults`; Paths siunčia `high` prioritetą skubiu Gmail keliu, o kitus leistinus įrašus – įprastu Fallback keliu. Laiške pateikiamas kabineto pavadinimas, gedimo aprašymas ir prioritetas. Webhook adresas laikomas Supabase duomenų bazės nustatymuose ir į repozitoriją neįtraukiamas.
 
-Sukurtas [Zapier juodraštis](https://zapier.com/editor/386821336), prijungta esama Gmail paskyra. Supabase `faults_zapier_insert` trigger perduoda tik `INSERT` įvykius. HTTP pristatymas į Zapier patikrintas: 200, be timeout ar klaidos. Webhook URL saugomas duomenų bazės nustatymuose, į Git nededamas.
+## Patikros rezultatai
 
-- Zapier gavo skubaus ir įprasto gedimo įvykius iš viešos Vercel programos.
-- Filter: `type = INSERT`, `table = faults`, `schema = public` – sėkmingas bandymas.
-- Path A: `Record Priority = high` – sėkmingas bandymas su skubiu įvykiu.
-- Path B: `Record Priority = normal` – sėkmingas bandymas su įprastu įvykiu.
-- Skubus Gmail veiksmas išsiuntė laišką „SKUBUS patalpos gedimas“, pranešimo ID `1a1e289c1822f0d6`.
-- Įprastas Gmail veiksmas išsiuntė laišką „Naujas patalpos gedimas“, pranešimo ID `1a1e28f19ffeef00`.
-- Abu laiškai patikrinti Gmail paieškoje ir yra gavėjo INBOX. Gynime juos galima rasti pagal temas.
+- `npm run build` sėkmingai surenka programą.
+- Patikrinta registracija, prisijungimas, sesijos atkūrimas ir atsijungimas.
+- Patikrinti trys puslapiai (`/gedimai`, `/registruoti`, `/patalpos`), tiesioginis jų atidarymas, atnaujinimas ir navigacija.
+- Patikrintos keturios sąsajos būsenos: įkėlimas, klaida su pakartojimu, tuščias sąrašas ir sėkmingas išsaugojimas.
+- RLS SQL bandymai patvirtino duomenų izoliaciją, būsenos reikšmių apribojimus ir draudimą vienam vartotojui keisti kito vartotojo duomenis.
+- Patikrinta, kad gedimo būsenos pakeitimas išlieka atnaujinus puslapį ir nesukuria naujo webhook įvykio.
+- Gedimo ištrynimo patvirtinimo dialogą atšaukus, gedimas liko sąraše; patvirtinus ištrinta laikina bandymo patalpa.
+- Iš viešos programos užregistruoti skubus ir įprastas gedimai. Zapier abiem atvejais įvykdė atitinkamą Gmail veiksmą; laiškai gauti gavėjo pašto dėžutėje.
+- Patikrintas Zapier klaidos kelias, kuris praneša savininkui apie nepavykusį skubaus Gmail veiksmą.
+- Patikrintas siauras, 390 px pločio, ekrano vaizdas; horizontalaus slinkimo nėra.
 
-Senoje paskyroje publikavimą blokavo Free planas. 2026-11-16 sukurtas [naujas juodraštis](https://zapier.com/editor/386877733) paskyroje su aktyviu 14 dienų Professional bandymu. Supabase trigger nukreiptas į naują webhook ir papildytas patalpos bei prioriteto pavadinimais. Tikras „Kabinetas 212 – Trūko vamzdis, teka vanduo“ įvykis pasiekė Zapier (HTTP 200). Filtras ir abi šakos patikrinti su šiuo skubiu įvykiu.
+Ekrano nuotraukos ir papildomi įrodymai pateikti [Notion dokumentacijoje](https://app.notion.com/p/41a185e1333d8175b63bc5a4cbe7cdf2).
 
-Naujas Zap publikuotas ir įjungtas (v1). Gmail prijungtas kaip `12arvydas12@gmail.com`, kontaktų prieiga nesuteikta. Abu nauji šablonai patikrinti; po publikavimo atliktas pilnas automatinis bandymas iš viešos svetainės be rankinio „Test step“:
+## Automatizavimo apimtis
 
-- Skubus: „Kabinetas 212 – Sugedo durų spyna, negalima užrakinti kabineto“. Gavėjo INBOX pranešimas `1a1e546d9b14e39c`, tema „Skubus gedimas – Kabinetas 212“.
-- Įprastas: „Kabinetas 316 – Projektorius nerodo vaizdo“. Gavėjo INBOX pranešimas `1a1e546dc362be00`, tema „Naujas gedimas – Kabinetas 316“.
-- [Zap history](https://zapier.com/app/history?root_id=386877733) rodo du Successful vykdymus 18:53:04 ir 18:53:06 (Europe/Vilnius).
-
-Publikavimo metu rodytas 14 dienų Professional bandymas. Jam pasibaigus šiai eigai reikės tinkamo plano; mokamas planas neužsakytas. Gynimo dieną patikrinkite prieigos galiojimą ir užregistruokite naują gedimą.
-
-Demonstracijos patalpos: „Kabinetas 212“ ir „Kabinetas 316“. Skubaus gedimo pavyzdžiai: trūkęs vamzdis ir vandens nuotėkis arba spyna, kuri neleidžia patekti į patalpą ar jos užrakinti. Įprasto gedimo pavyzdys: neveikiantis projektorius.
-
-## Rankinis priėmimo bandymas
-
-Prisijungus viršuje yra trys puslapiai: `/gedimai` – registras ir būsenos, `/registruoti` – naujas gedimas, `/patalpos` – kabinetų sąrašas ir pridėjimas. Prisijungimas / registracija atidaromi per `/prisijungimas`. Vercel maršrutams naudojamas `vercel.json` SPA perrašymas.
-
-Gedimas kuriamas su būsena `registered`. Registre patalpos savininkas gali jį pažymėti `resolved` („Sutvarkyta“) arba atverti iš naujo. Tam naudojama esama RLS apsaugota UPDATE operacija. Būsenos pakeitimui el. laiškas nesiunčiamas; INSERT automatizavimas lieka toks pats. Prieš paleidžiant naują programos versiją reikia pritaikyti `supabase/migrations/20261116182101_add_fault_status.sql`.
-
-1. Be aplinkos kintamųjų matomas konfigūravimo pranešimas.
-2. Registracija su vartotojo vardu A ir slaptažodžiu, prisijungimas iškart be el. pašto patvirtinimo.
-3. Sukurti patalpą „204 kabinetas“. Tuščias ir vien tarpų pavadinimas neturi būti išsaugotas.
-4. Užregistruoti po vieną įprastą ir skubų gedimą. Patikrinti sąrašą ir atnaujinti naršyklės puslapį.
-5. Atsijungti, prisijungti vartotoju B. A patalpų ir gedimų B neturi matyti.
-6. RLS tikrinti ir tiesiogiai per Supabase Data API su B sesijos tokenu: A patalpos bei gedimo SELECT turi grąžinti tuščią sąrašą; INSERT į A patalpą turi būti atmestas. UPDATE / DELETE neturi pakeisti A duomenų. Testams nenaudoti `service_role` ir nedėti tokenų į dokumentaciją.
-7. Neprisijungusio kliento SELECT ir INSERT turi būti atmesti. SQL Editor administratoriaus užklausa savaime RLS nepatikrina.
-8. Patikrinti abu Gmail laiškus, telefono ekrano išdėstymą ir viešą Vercel adresą privačiame naršyklės lange.
-9. Pažymėti savo gedimą „Sutvarkyta“, atnaujinti puslapį ir įsitikinti, kad būsena išliko. Paspausti „Atverti iš naujo“. Svetimo gedimo būsenos keitimą turi atmesti RLS.
-10. Atidaryti kiekvieną iš trijų puslapių tiesiogine nuoroda, atnaujinti puslapį ir patikrinti naršyklės mygtuką „Atgal“.
-
-## Trumpas tekstas Notion puslapiui
-
-**Patalpų gedimų registras** – baigiamasis projektas, skirtas registruoti savo patalpų gedimus ir išskirti skubius atvejus.
-
-Technologijos: React, Vite, Supabase Auth ir PostgreSQL su RLS, Vercel, Zapier bei Gmail.
-Duomenys: vartotojas turi patalpas (`rooms`); patalpa turi gedimus (`faults`). Prioritetas – `normal` arba `high`.
-RLS apriboja prieigą patalpų savininkui. Supabase kliento viešas raktas naudojamas su prisijungusio vartotojo sesija.
-Naujo gedimo INSERT perduodamas į Zapier; pagal prioritetą Gmail išsiunčia laišką savininkui.
-
-Prieš pateikimą papildyti: GitHub saugyklos adresas, 3 sujungtų PR adresai, viešas Vercel adresas, Auth / RLS bandymų rezultatai ir abiejų prioritetų laiškų ekrano vaizdai.
+Esant 50 naujų gedimų per mėnesį ir vienam sėkmingam Gmail veiksmui kiekvienam įrašui, numatoma apie 50 Zapier užduočių per mėnesį. Papildomi pranešimai klaidos atveju gali padidinti užduočių skaičių.
