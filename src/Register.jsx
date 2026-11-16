@@ -16,6 +16,7 @@ export default function Register({ session }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [revision, setRevision] = useState(0);
+  const [statusFilter, setStatusFilter] = useState('all');
   useEffect(() => {
     let active = true;
     setLoading(true); setError('');
@@ -56,7 +57,7 @@ export default function Register({ session }) {
       const { error } = await supabase.from('faults').update({ status }).eq('id', fault.id).select('id').single();
       if (error) throw error;
       setFaults(items => items.map(item => item.id === fault.id ? { ...item, status } : item));
-      setNotice(status === 'resolved' ? 'Gedimas pažymėtas kaip sutvarkytas.' : 'Gedimas vėl pažymėtas kaip užregistruotas.');
+      setNotice(status === 'resolved' ? 'Gedimas pažymėtas kaip sutvarkytas. Jį rasite pasirinkę „Sutvarkyti“ arba „Visi“.' : 'Gedimas vėl pažymėtas kaip užregistruotas.');
     } catch (error) { setError(`Nepavyko pakeisti būsenos: ${error.message}`); }
     finally { setBusy(false); }
   }
@@ -72,6 +73,7 @@ export default function Register({ session }) {
   }
 
   const unresolved = faults.filter(fault => fault.status !== 'resolved').length;
+  const visibleFaults = faults.filter(fault => statusFilter === 'all' || fault.status === statusFilter);
   return <>
     <div className="account"><span>{session.user.user_metadata?.username || session.user.email?.split('@')[0]}</span><button className="secondary" disabled={busy} onClick={signOut}>Atsijungti</button></div>
     <nav className="tabs" aria-label="Programos puslapiai">{pages.map(page => <a key={page.path} href={page.path} aria-current={path === page.path ? 'page' : undefined}><strong>{page.name}</strong><span>{page.hint}</span></a>)}</nav>
@@ -84,7 +86,13 @@ export default function Register({ session }) {
       <p>Čia matote savo patalpų gedimus ir ar jie jau sutvarkyti.</p>
       {!loading && !error && (!faults.length ? <div className="empty"><p>Gedimų dar nėra.</p><a href={rooms.length ? '/registruoti' : '/patalpos'}>{rooms.length ? 'Registruoti pirmą gedimą' : 'Pirmiausia pridėti patalpą'}</a></div> : <>
         <p className="summary">Užregistruota: <strong>{unresolved}</strong> · Sutvarkyta: <strong>{faults.length - unresolved}</strong></p>
-        <ul className="fault-list">{[...faults].sort((a, b) => Number(a.status === 'resolved') - Number(b.status === 'resolved') || Number(b.priority === 'high') - Number(a.priority === 'high')).map(fault => <li className="fault" key={fault.id}>
+        <div className="status-filters" role="group" aria-label="Filtruoti pagal gedimo būseną">{[
+          { value: 'all', label: 'Visi', count: faults.length },
+          { value: 'registered', label: 'Užregistruoti', count: unresolved },
+          { value: 'resolved', label: 'Sutvarkyti', count: faults.length - unresolved },
+        ].map(filter => <button key={filter.value} className="secondary" aria-pressed={statusFilter === filter.value} onClick={() => setStatusFilter(filter.value)}>{filter.label} ({filter.count})</button>)}</div>
+        {!visibleFaults.length && <p className="empty">Šioje būsenoje gedimų nėra. Visus įrašus matysite pasirinkę „Visi“.</p>}
+        <ul className="fault-list">{[...visibleFaults].sort((a, b) => Number(b.priority === 'high') - Number(a.priority === 'high')).map(fault => <li className="fault" key={fault.id}>
           <div className="fault-tags"><span className={fault.priority === 'high' ? 'badge urgent' : 'badge'}>{fault.priority === 'high' ? 'Skubus' : 'Įprastas'}</span><span className={fault.status === 'resolved' ? 'badge resolved' : 'badge pending'}>{fault.status === 'resolved' ? 'Sutvarkyta' : 'Užregistruota'}</span></div>
           <h3>{fault.title}</h3><p>{rooms.find(room => room.id === fault.room_id)?.name}</p>
           <button className="secondary" disabled={busy} onClick={() => changeStatus(fault)}>{fault.status === 'resolved' ? 'Atverti iš naujo' : 'Pažymėti sutvarkytu'}</button>

@@ -36,6 +36,9 @@ a { color: #235b46; text-underline-offset: .2rem; }
 .success { padding: 1rem; background: #e7f4ec; color: #184e35; border-radius: .4rem; }
 .empty { padding: 1rem; background: #f4f6f9; border-radius: .4rem; }
 .hint, .summary { color: #4b5d56; }
+.status-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.status-filters button.secondary { margin: 0; }
+.status-filters button[aria-pressed="true"] { background: #235b46; color: white; }
 .fault-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .fault { border: 1px solid #dce2e9; border-radius: .6rem; padding: 1rem; margin: 0; overflow-wrap: anywhere; }
 .fault h3 { margin: .75rem 0 .25rem; font-size: 1.05rem; line-height: 1.4; }
