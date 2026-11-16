@@ -22,7 +22,19 @@ Automatizavimas vykdomas serveryje: naršyklė tik įterpia gedimą į `faults`.
 7. Laiško turinyje perduokite `record.title`, `record.room_id` ir `record.id`. Patalpos pavadinimo webhook įvykis nesiunčia – paprastai versijai pakanka ID.
 8. Įjunkite automatizavimą ir patikrinkite abu prioritetus. Pakartotas webhook gali sukelti pakartotinį laišką; jei reikalinga deduplikacija, naudokite `record.id`.
 
-Gmail paskyros prijungimas ir bandomųjų laiškų siuntimas dar neatliktas. Prieš konfigūruojant patikrinkite, ar pasirinktas Zapier planas palaiko Webhooks ir Paths.
+## Atliktų bandymų rezultatai
+
+Sukurtas [Zapier juodraštis](https://zapier.com/editor/386821336), prijungta esama Gmail paskyra. Supabase `faults_zapier_insert` trigger perduoda tik `INSERT` įvykius. HTTP pristatymas į Zapier patikrintas: 200, be timeout ar klaidos. Webhook URL saugomas duomenų bazės nustatymuose, į Git nededamas.
+
+- Zapier gavo skubaus ir įprasto gedimo įvykius iš viešos Vercel programos.
+- Filter: `type = INSERT`, `table = faults`, `schema = public` – sėkmingas bandymas.
+- Path A: `Record Priority = high` – sėkmingas bandymas su skubiu įvykiu.
+- Path B: `Record Priority = normal` – sėkmingas bandymas su įprastu įvykiu.
+- Skubus Gmail veiksmas išsiuntė laišką „SKUBUS patalpos gedimas“, pranešimo ID `1a1e289c1822f0d6`.
+- Įprastas Gmail veiksmas išsiuntė laišką „Naujas patalpos gedimas“, pranešimo ID `1a1e28f19ffeef00`.
+- Abu laiškai patikrinti Gmail paieškoje ir yra gavėjo INBOX. Gynime juos galima rasti pagal temas.
+
+Zapier publikuoti neleido langas „Upgrade to Pro to publish this Zap“. Paskyra yra Free, Professional bandymas pasibaigęs. Planas nekeistas ir pirkimas neatliktas. Juodraštis su bandymais paruoštas, tačiau nauji gedimai savaime laiškų dar nesukelia. Po tinkamo plano įjungimo būtina publikuoti Zap ir atlikti pilną automatinį abiejų prioritetų bandymą bei parodyti Zap history.
 
 ## Rankinis priėmimo bandymas
 
