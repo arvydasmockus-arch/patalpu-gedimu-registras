@@ -18,7 +18,7 @@ Automatizavimas vykdomas serveryje: naršyklė tik įterpia gedimą į `faults`.
 3. Užregistruokite vieną bandomą gedimą ir Zapier patikrinkite gautą įvykį.
 4. Filter žingsnyje praleiskite tik `type = INSERT`, `table = faults` ir `schema = public`.
 5. Paths sudarykite dvi nesikertančias sąlygas: `record.priority = high` ir `record.priority = normal`.
-6. Kiekvienoje šakoje prijunkite Gmail laiško siuntimą projekto savininko adresu. Skubaus laiško tema: „SKUBUS patalpos gedimas“, įprasto: „Naujas patalpos gedimas“.
+6. Kiekvienoje šakoje prijunkite Gmail laiško siuntimą projekto savininko adresu. Skubaus laiško tema: „Skubus gedimas – [patalpos pavadinimas]“, įprasto: „Naujas gedimas – [patalpos pavadinimas]“. Pavadinimą įterpkite kaip dinaminį lauką.
 7. Pritaikykite `supabase/migrations/20261116161650_fault_webhook_room_name.sql`: webhook papildomas `record.room_name` ir `record.priority_name`. Trigger pirmame argumente išsaugomas Zapier adresas. Laiško turinyje perduokite patalpos pavadinimą, gedimo aprašymą ir lietuvišką prioritetą; UUID laiškuose nerodykite.
 8. Įjunkite automatizavimą ir patikrinkite abu prioritetus. Pakartotas webhook gali sukelti pakartotinį laišką; jei reikalinga deduplikacija, naudokite `record.id`.
 
@@ -36,7 +36,13 @@ Sukurtas [Zapier juodraštis](https://zapier.com/editor/386821336), prijungta es
 
 Senoje paskyroje publikavimą blokavo Free planas. 2026-11-16 sukurtas [naujas juodraštis](https://zapier.com/editor/386877733) paskyroje su aktyviu 14 dienų Professional bandymu. Supabase trigger nukreiptas į naują webhook ir papildytas patalpos bei prioriteto pavadinimais. Tikras „Kabinetas 212 – Trūko vamzdis, teka vanduo“ įvykis pasiekė Zapier (HTTP 200). Filtras ir abi šakos patikrinti su šiuo skubiu įvykiu.
 
-Dar reikia užbaigti Gmail prijungimą, išsaugoti ir patikrinti laiškų šablonus, publikuoti Zap ir atlikti pilną automatinį abiejų prioritetų bandymą bei parodyti Zap history. Automatinis laiškų siuntimas dar neįjungtas. Mokamas planas neužsakytas.
+Naujas Zap publikuotas ir įjungtas (v1). Gmail prijungtas kaip `12arvydas12@gmail.com`, kontaktų prieiga nesuteikta. Abu nauji šablonai patikrinti; po publikavimo atliktas pilnas automatinis bandymas iš viešos svetainės be rankinio „Test step“:
+
+- Skubus: „Kabinetas 212 – Sugedo durų spyna, negalima užrakinti kabineto“. Gavėjo INBOX pranešimas `1a1e546d9b14e39c`, tema „Skubus gedimas – Kabinetas 212“.
+- Įprastas: „Kabinetas 316 – Projektorius nerodo vaizdo“. Gavėjo INBOX pranešimas `1a1e546dc362be00`, tema „Naujas gedimas – Kabinetas 316“.
+- [Zap history](https://zapier.com/app/history?root_id=386877733) rodo du Successful vykdymus 18:53:04 ir 18:53:06 (Europe/Vilnius).
+
+Publikavimo metu rodytas 14 dienų Professional bandymas. Jam pasibaigus šiai eigai reikės tinkamo plano; mokamas planas neužsakytas. Gynimo dieną patikrinkite prieigos galiojimą ir užregistruokite naują gedimą.
 
 Demonstracijos patalpos: „Kabinetas 212“ ir „Kabinetas 316“. Skubaus gedimo pavyzdžiai: trūkęs vamzdis ir vandens nuotėkis arba spyna, kuri neleidžia patekti į patalpą ar jos užrakinti. Įprasto gedimo pavyzdys: neveikiantis projektorius.
 

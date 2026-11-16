@@ -8,7 +8,8 @@ Baigiamasis projektas. Vartotojas registruoja įprastus arba skubius gedimus sav
 - [GitHub](https://github.com/arvydasmockus-arch/patalpu-gedimu-registras)
 - [Supabase valdymas](https://supabase.com/dashboard/project/mbtlhhhkjgdkbzkhdigh)
 - [Notion dokumentacija](https://app.notion.com/p/41a185e1333d8175b63bc5a4cbe7cdf2)
-- [Zapier automatizavimo juodraštis naujoje paskyroje](https://zapier.com/editor/386877733)
+- [Įjungtas Zapier automatizavimas](https://zapier.com/editor/386877733)
+- [Zapier vykdymų istorija](https://zapier.com/app/history?root_id=386877733)
 
 ## Paleidimas
 
@@ -39,7 +40,7 @@ SQL failą naujame projekte vykdykite vieną kartą – jis nėra skirtas pakart
 
 - `rooms` – vartotojo patalpos.
 - `faults` – pasirinktos patalpos gedimai. Prioritetas `normal` arba `high`.
-- Naujas gedimas sukuria vieną įrašą `faults` lentelėje. Supabase INSERT webhook perduoda įvykį į Zapier. Paruošta ir atskirais žingsniais patikrinta Filter → Paths → Gmail eiga; automatinis vykdymas dar neįjungtas dėl Zapier plano apribojimo.
+- Naujas gedimas sukuria vieną įrašą `faults` lentelėje. Supabase INSERT webhook perduoda įvykį į Zapier. Įjungta Filter → Paths → Gmail eiga automatiškai siunčia laišką pagal prioritetą.
 
 ## Įgyvendinta
 
@@ -60,11 +61,11 @@ Išsaugokite tris atskirus pakeitimų rinkinius ir sujunkite juos per GitHub PR:
 
 Pradinis commit: `82d6c8e`. Sujungti trys PR: [PR 1 – Auth](https://github.com/arvydasmockus-arch/patalpu-gedimu-registras/pull/1), [PR 2 – formos](https://github.com/arvydasmockus-arch/patalpu-gedimu-registras/pull/2), [PR 3 – paprastas prisijungimas ir dokumentacija](https://github.com/arvydasmockus-arch/patalpu-gedimu-registras/pull/3).
 
-Zapier juodraštyje sukonfigūruoti webhook, filtras, `high` ir `normal` šakos bei Gmail laiškai. Supabase webhook atsakymas – HTTP 200. Abi sąlygos ir abu Gmail veiksmai patikrinti su tikrais gedimų įrašais; abu laiškai gauti projekto savininko Gmail. Tai redaktoriaus žingsnių bandymai, o ne įjungto automatizavimo vykdymų istorija.
+Zapier sukonfigūruoti webhook, filtras, `high` ir `normal` šakos bei Gmail laiškai. Supabase webhook atsakymas – HTTP 200. Laiškuose perduodamas kabinetas, gedimo aprašymas ir lietuviškas prioritetas, be UUID. Siuntėjas `12arvydas12@gmail.com`, gavėjas `arvydas.mockus@gmail.com`.
 
-2026-11-16 automatizavimas perkeltas į naujos paskyros juodraštį su aktyviu 14 dienų Professional bandymu. Supabase trigger papildytas patalpos pavadinimu ir lietuvišku prioritetu; naujas Zapier gavo tikrą „Kabinetas 212 – Trūko vamzdis, teka vanduo“ įrašą (HTTP 200). Filtras ir abi šakos patikrinti su skubiu įvykiu. Laiškų šablonuose numatyti žmonėms suprantami laukai, be UUID.
+2026-11-16 publikuota ir įjungta Zap versija v1. Po publikavimo viešoje svetainėje užregistruoti du nauji gedimai be rankinio „Test step“: „Kabinetas 212 – Sugedo durų spyna, negalima užrakinti kabineto“ (skubus) ir „Kabinetas 316 – Projektorius nerodo vaizdo“ (įprastas). Abu laiškai patikrinti gavėjo INBOX; Zapier istorijoje du Successful vykdymai (18:53:04 ir 18:53:06, Europe/Vilnius).
 
-**Liko prieš galutinį gynimą:** užbaigti Gmail paskyros prijungimą, išsaugoti ir patikrinti abu laiškų šablonus, publikuoti Zap ir patikrinti du naujus gedimus be rankinio „Test step“. Naujas automatizavimas dar neįjungtas. Bandomasis planas laikinas; mokamas planas neužsakytas.
+**Prieš gynimą:** patikrinkite, kad Zapier Professional prieiga dar aktyvi. Publikavimo metu paskyra rodė 14 dienų bandomąjį laikotarpį; jam pasibaigus šiai eigai reikės tinkamo plano. Mokamas planas neužsakytas.
 Diegimo, automatizavimo ir bandymo žingsniai: [docs/uzbaigimas.md](docs/uzbaigimas.md).
 
 Supabase Auth metodai patikrinti pagal oficialią [prisijungimo](https://supabase.com/docs/reference/javascript/auth-signinwithpassword) ir [registracijos](https://supabase.com/docs/reference/javascript/auth-signup) dokumentaciją.
