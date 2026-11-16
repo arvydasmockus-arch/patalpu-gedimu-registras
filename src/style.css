@@ -21,7 +21,7 @@ form, label { display: grid; gap: .5rem; }
 form { gap: 1rem; }
 input, select, button { font: inherit; padding: .75rem; border-radius: .4rem; }
 input, select { width: 100%; min-width: 0; border: 1px solid #9ca9b7; background: white; color: inherit; }
-button { min-height: 46px; border: 1px solid #235b46; background: #235b46; color: white; cursor: pointer; }
+button { min-height: 46px; line-height: 1.2; border: 1px solid #235b46; background: #235b46; color: white; cursor: pointer; }
 button:disabled { opacity: .55; cursor: wait; }
 button.secondary { background: white; color: #235b46; margin-top: .75rem; }
 a { color: #235b46; text-underline-offset: .2rem; }
@@ -45,7 +45,7 @@ a { color: #235b46; text-underline-offset: .2rem; }
 .fault p { margin: .25rem 0; }
 .fault-tags { display: flex; gap: .5rem; flex-wrap: wrap; }
 .card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-.card-actions button.secondary { margin-top: .75rem; }
+.card-actions button.secondary { margin-top: 0; }
 .danger { min-height: 46px; border: 1px solid #a52d25; background: #fff; color: #8c241e; padding: .75rem; border-radius: .4rem; cursor: pointer; }
 .danger:hover:not(:disabled) { background: #fff0ee; }
 .room-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; border-top: 1px solid #dce2e9; padding-top: .75rem; }
