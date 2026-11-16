@@ -26,6 +26,8 @@ Jeigu PowerShell blokuoja `npm.ps1`, naudokite `npm.cmd`.
 
 Duomenų bazės schema yra `supabase/001_initial.sql`. Ją paleiskite šio projekto Supabase SQL Editor. Prisijungimo integracijai nukopijuokite `.env.example` į `.env.local` ir įrašykite projekto URL bei viešą kliento raktą.
 
+Po pradinės schemos pritaikykite `supabase/migrations/20261116182101_add_fault_status.sql`, kuris prideda gedimo būseną. Webhook integracija aprašyta `docs/uzbaigimas.md`.
+
 ```env
 VITE_SUPABASE_URL=https://PROJEKTAS.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=VIESAS_KLIENTO_RAKTAS
@@ -39,18 +41,22 @@ SQL failą naujame projekte vykdykite vieną kartą – jis nėra skirtas pakart
 ## Apimtis
 
 - `rooms` – vartotojo patalpos.
-- `faults` – pasirinktos patalpos gedimai. Prioritetas `normal` arba `high`.
+- `faults` – pasirinktos patalpos gedimai. Prioritetas `normal` arba `high`, būsena `registered` (Užregistruota) arba `resolved` (Sutvarkyta).
 - Naujas gedimas sukuria vieną įrašą `faults` lentelėje. Supabase INSERT webhook perduoda įvykį į Zapier. Įjungta Filter → Paths → Gmail eiga automatiškai siunčia laišką pagal prioritetą.
 
 ## Įgyvendinta
 
 - Paprasta registracija ir prisijungimas vartotojo vardu bei slaptažodžiu, sesijos atkūrimas, atsijungimas.
 - Patalpos kūrimas, gedimo registravimas su įprastu arba skubiu prioritetu.
-- Savo patalpų ir gedimų sąrašas, įkėlimo ir klaidų pranešimai.
+- Savo patalpų ir gedimų sąrašas, gedimo pažymėjimas sutvarkytu ir atvėrimas iš naujo.
 - SQL RLS: vartotojas pasiekia tik savo patalpas ir jų gedimus; neprisijungusiam prieiga nesuteikta.
-- Trys ekranai: prisijungimas / registracija, „Mano sąrašas“ ir „Kurti įrašą“. Būsenos: įkėlimas, klaida su „Bandyti dar kartą“, tuščias sąrašas ir sėkmingo išsaugojimo pranešimas.
+- Prisijungimas / registracija (`/prisijungimas`) ir trys puslapiai su navigacijos skirtukais: „Gedimų registras“ (`/gedimai`), „Registruoti gedimą“ (`/registruoti`), „Patalpos“ (`/patalpos`). Kiekvieną adresą galima atidaryti tiesiogiai ir atnaujinti. Vercel SPA perrašymas nustatytas `vercel.json`.
+- Keturios UI būsenos: įkėlimas, klaida su „Bandyti dar kartą“, tuščias sąrašas su kito veiksmo nuoroda ir sėkmės patvirtinimas po išsaugojimo. Tai atskira nuo gedimo būsenų „Užregistruota“ / „Sutvarkyta“.
+- Prisijungęs vartotojas pats keičia savo gedimo būseną. Atskiro administratoriaus vaidmens nėra. Būsenos UPDATE nesukelia naujo Gmail laiško: webhook veikia tik po INSERT.
 
 Patikrinta: surinkimas ir tikras Supabase Auth. Naršyklėje sukurta paskyra vartotojo vardu, patalpa ir skubus gedimas; patikrintas sesijos atkūrimas, atsijungimas bei pakartotinis prisijungimas. Viešoje Vercel svetainėje patikrintas prisijungimas ir antros paskyros duomenų izoliacija, taip pat 390 px pločio ekranas. Tikroje duomenų bazėje patikrinta RLS izoliacija su `authenticated` vaidmeniu. Pakartojamas SQL bandymas: `supabase/check_rls.sql` (bandomi duomenys atšaukiami su ROLLBACK). Pradinė lentelių saugumo patikra RLS pastabų nerado.
+
+Atnaujintoje programoje naršyklėje patikrinta patalpos ir gedimo kūrimo eiga, būsenos keitimas, jos išlikimas atnaujinus puslapį, atvėrimas iš naujo, navigacija ir naršyklės grįžimas. Tinklo klaida parodė Error, „Bandyti dar kartą“ atkūrė sąrašą; 390 px pločiu horizontalaus slinkimo nėra. Naujo įprasto gedimo laiškas apie kabinetą 218 gautas gavėjo INBOX. SQL bandymas taip pat tikrina numatytą būseną, leistinas reikšmes ir draudimą keisti svetimo gedimo būseną.
 
 ## Įskaitos darbų eiga
 

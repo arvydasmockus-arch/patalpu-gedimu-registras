@@ -17,7 +17,7 @@ Automatizavimas vykdomas serveryje: naršyklė tik įterpia gedimą į `faults`.
 2. Supabase Database Webhooks sukurkite `public.faults` įvykio `INSERT` webhook į tą adresą. Adreso nedėkite į frontend ar Git.
 3. Užregistruokite vieną bandomą gedimą ir Zapier patikrinkite gautą įvykį.
 4. Filter žingsnyje praleiskite tik `type = INSERT`, `table = faults` ir `schema = public`.
-5. Paths sudarykite dvi nesikertančias sąlygas: `record.priority = high` ir `record.priority = normal`.
+5. Paths skubiam keliui nustatykite `record.priority = high`, o įprastam – Fallback. Duomenų bazė leidžia tik `high` ir `normal`.
 6. Kiekvienoje šakoje prijunkite Gmail laiško siuntimą projekto savininko adresu. Skubaus laiško tema: „Skubus gedimas – [patalpos pavadinimas]“, įprasto: „Naujas gedimas – [patalpos pavadinimas]“. Pavadinimą įterpkite kaip dinaminį lauką.
 7. Pritaikykite `supabase/migrations/20261116161650_fault_webhook_room_name.sql`: webhook papildomas `record.room_name` ir `record.priority_name`. Trigger pirmame argumente išsaugomas Zapier adresas. Laiško turinyje perduokite patalpos pavadinimą, gedimo aprašymą ir lietuvišką prioritetą; UUID laiškuose nerodykite.
 8. Įjunkite automatizavimą ir patikrinkite abu prioritetus. Pakartotas webhook gali sukelti pakartotinį laišką; jei reikalinga deduplikacija, naudokite `record.id`.
@@ -48,6 +48,10 @@ Demonstracijos patalpos: „Kabinetas 212“ ir „Kabinetas 316“. Skubaus ged
 
 ## Rankinis priėmimo bandymas
 
+Prisijungus viršuje yra trys puslapiai: `/gedimai` – registras ir būsenos, `/registruoti` – naujas gedimas, `/patalpos` – kabinetų sąrašas ir pridėjimas. Prisijungimas / registracija atidaromi per `/prisijungimas`. Vercel maršrutams naudojamas `vercel.json` SPA perrašymas.
+
+Gedimas kuriamas su būsena `registered`. Registre patalpos savininkas gali jį pažymėti `resolved` („Sutvarkyta“) arba atverti iš naujo. Tam naudojama esama RLS apsaugota UPDATE operacija. Būsenos pakeitimui el. laiškas nesiunčiamas; INSERT automatizavimas lieka toks pats. Prieš paleidžiant naują programos versiją reikia pritaikyti `supabase/migrations/20261116182101_add_fault_status.sql`.
+
 1. Be aplinkos kintamųjų matomas konfigūravimo pranešimas.
 2. Registracija su vartotojo vardu A ir slaptažodžiu, prisijungimas iškart be el. pašto patvirtinimo.
 3. Sukurti patalpą „204 kabinetas“. Tuščias ir vien tarpų pavadinimas neturi būti išsaugotas.
@@ -56,6 +60,8 @@ Demonstracijos patalpos: „Kabinetas 212“ ir „Kabinetas 316“. Skubaus ged
 6. RLS tikrinti ir tiesiogiai per Supabase Data API su B sesijos tokenu: A patalpos bei gedimo SELECT turi grąžinti tuščią sąrašą; INSERT į A patalpą turi būti atmestas. UPDATE / DELETE neturi pakeisti A duomenų. Testams nenaudoti `service_role` ir nedėti tokenų į dokumentaciją.
 7. Neprisijungusio kliento SELECT ir INSERT turi būti atmesti. SQL Editor administratoriaus užklausa savaime RLS nepatikrina.
 8. Patikrinti abu Gmail laiškus, telefono ekrano išdėstymą ir viešą Vercel adresą privačiame naršyklės lange.
+9. Pažymėti savo gedimą „Sutvarkyta“, atnaujinti puslapį ir įsitikinti, kad būsena išliko. Paspausti „Atverti iš naujo“. Svetimo gedimo būsenos keitimą turi atmesti RLS.
+10. Atidaryti kiekvieną iš trijų puslapių tiesiogine nuoroda, atnaujinti puslapį ir patikrinti naršyklės mygtuką „Atgal“.
 
 ## Trumpas tekstas Notion puslapiui
 
