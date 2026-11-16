@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #f4f6f9;
+  color: #18233a;
+}
+
+main {
+  max-width: 40rem;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+}
+
