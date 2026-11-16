@@ -8,7 +8,7 @@ Baigiamasis projektas. Vartotojas registruoja įprastus arba skubius gedimus sav
 - [GitHub](https://github.com/arvydasmockus-arch/patalpu-gedimu-registras)
 - [Supabase valdymas](https://supabase.com/dashboard/project/mbtlhhhkjgdkbzkhdigh)
 - [Notion dokumentacija](https://app.notion.com/p/41a185e1333d8175b63bc5a4cbe7cdf2)
-- [Zapier automatizavimo juodraštis](https://zapier.com/editor/386821336)
+- [Zapier automatizavimo juodraštis naujoje paskyroje](https://zapier.com/editor/386877733)
 
 ## Paleidimas
 
@@ -62,7 +62,9 @@ Pradinis commit: `82d6c8e`. Sujungti trys PR: [PR 1 – Auth](https://github.com
 
 Zapier juodraštyje sukonfigūruoti webhook, filtras, `high` ir `normal` šakos bei Gmail laiškai. Supabase webhook atsakymas – HTTP 200. Abi sąlygos ir abu Gmail veiksmai patikrinti su tikrais gedimų įrašais; abu laiškai gauti projekto savininko Gmail. Tai redaktoriaus žingsnių bandymai, o ne įjungto automatizavimo vykdymų istorija.
 
-**Liko prieš galutinį gynimą:** Zapier nemokamas planas neleidžia publikuoti šios eigos (Webhooks, keli žingsniai ir Paths). Reikia tinkamo plano arba paskyros su aktyvia prieiga, tuomet publikuoti Zap ir patikrinti du naujus gedimus be rankinio „Test step“. Mokamas planas nebuvo užsakytas.
+2026-11-16 automatizavimas perkeltas į naujos paskyros juodraštį su aktyviu 14 dienų Professional bandymu. Supabase trigger papildytas patalpos pavadinimu ir lietuvišku prioritetu; naujas Zapier gavo tikrą „Kabinetas 212 – Trūko vamzdis, teka vanduo“ įrašą (HTTP 200). Filtras ir abi šakos patikrinti su skubiu įvykiu. Laiškų šablonuose numatyti žmonėms suprantami laukai, be UUID.
+
+**Liko prieš galutinį gynimą:** užbaigti Gmail paskyros prijungimą, išsaugoti ir patikrinti abu laiškų šablonus, publikuoti Zap ir patikrinti du naujus gedimus be rankinio „Test step“. Naujas automatizavimas dar neįjungtas. Bandomasis planas laikinas; mokamas planas neužsakytas.
 Diegimo, automatizavimo ir bandymo žingsniai: [docs/uzbaigimas.md](docs/uzbaigimas.md).
 
 Supabase Auth metodai patikrinti pagal oficialią [prisijungimo](https://supabase.com/docs/reference/javascript/auth-signinwithpassword) ir [registracijos](https://supabase.com/docs/reference/javascript/auth-signup) dokumentaciją.

@@ -52,7 +52,7 @@ export default function Register({ session }) {
     <div className="account"><span>{session.user.user_metadata?.username || session.user.email?.split('@')[0]}</span><button className="secondary" disabled={busy} onClick={signOut}>Atsijungti</button></div>
     {error && <p role="alert" className="error">{error}</p>}<p role="status">{notice}</p>
     <section><h2>Pridėti patalpą</h2><form onSubmit={event => save(event, 'rooms')}>
-      <label>Patalpos pavadinimas<input name="name" placeholder="Pvz., 204 kabinetas" maxLength={120} required /></label>
+      <label>Patalpos pavadinimas<input name="name" placeholder="Pvz., Kabinetas 212" maxLength={120} required /></label>
       <button disabled={busy || loading}>Pridėti patalpą</button>
     </form></section>
     <section><h2>Registruoti gedimą</h2>
@@ -61,6 +61,7 @@ export default function Register({ session }) {
         <label>Patalpa<select name="room_id" required disabled={!rooms.length} defaultValue=""><option value="" disabled>Pasirinkite patalpą</option>{rooms.map(room => <option key={room.id} value={room.id}>{room.name}</option>)}</select></label>
         <label>Gedimo aprašymas<input name="title" placeholder="Pvz., neveikia apšvietimas" maxLength={500} required /></label>
         <label>Prioritetas<select name="priority"><option value="normal">Įprastas</option><option value="high">Skubus</option></select></label>
+        <p>Skubus: trūko vamzdis, teka vanduo arba sugedusi spyna neleidžia patekti į patalpą ar jos užrakinti.</p>
         <button disabled={busy || loading || !rooms.length}>Registruoti gedimą</button>
       </form>
     </section>

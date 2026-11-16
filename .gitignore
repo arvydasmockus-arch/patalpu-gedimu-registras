@@ -1,5 +1,6 @@
 node_modules/
 dist/
 .playwright-mcp/
+supabase/.temp/
 .env*
 !.env.example
