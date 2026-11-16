@@ -48,6 +48,7 @@ SQL failą naujame projekte vykdykite vieną kartą – jis nėra skirtas pakart
 - Patalpos kūrimas, gedimo registravimas su įprastu arba skubiu prioritetu.
 - Savo patalpų ir gedimų sąrašas, įkėlimo ir klaidų pranešimai.
 - SQL RLS: vartotojas pasiekia tik savo patalpas ir jų gedimus; neprisijungusiam prieiga nesuteikta.
+- Trys ekranai: prisijungimas / registracija, „Mano sąrašas“ ir „Kurti įrašą“. Būsenos: įkėlimas, klaida su „Bandyti dar kartą“, tuščias sąrašas ir sėkmingo išsaugojimo pranešimas.
 
 Patikrinta: surinkimas ir tikras Supabase Auth. Naršyklėje sukurta paskyra vartotojo vardu, patalpa ir skubus gedimas; patikrintas sesijos atkūrimas, atsijungimas bei pakartotinis prisijungimas. Viešoje Vercel svetainėje patikrintas prisijungimas ir antros paskyros duomenų izoliacija, taip pat 390 px pločio ekranas. Tikroje duomenų bazėje patikrinta RLS izoliacija su `authenticated` vaidmeniu. Pakartojamas SQL bandymas: `supabase/check_rls.sql` (bandomi duomenys atšaukiami su ROLLBACK). Pradinė lentelių saugumo patikra RLS pastabų nerado.
 

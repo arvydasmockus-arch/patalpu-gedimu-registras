@@ -9,6 +9,7 @@ export default function Register({ session }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [revision, setRevision] = useState(0);
+  const [screen, setScreen] = useState('list');
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -50,8 +51,9 @@ export default function Register({ session }) {
   }
   return <>
     <div className="account"><span>{session.user.user_metadata?.username || session.user.email?.split('@')[0]}</span><button className="secondary" disabled={busy} onClick={signOut}>Atsijungti</button></div>
-    {error && <p role="alert" className="error">{error}</p>}<p role="status">{notice}</p>
-    <section><h2>Pridėti patalpą</h2><form onSubmit={event => save(event, 'rooms')}>
+    <nav aria-label="Programos ekranai"><button className="secondary" aria-pressed={screen === 'list'} onClick={() => setScreen('list')}>Mano sąrašas</button>{' '}<button className="secondary" aria-pressed={screen === 'create'} onClick={() => setScreen('create')}>Kurti įrašą</button></nav>
+    {error && <div role="alert" className="error"><p>{error}</p><button disabled={loading || busy} onClick={() => setRevision(value => value + 1)}>Bandyti dar kartą</button></div>}<p role="status">{notice}</p>
+    <div hidden={screen !== 'create'}><section><h2>Pridėti patalpą</h2><form onSubmit={event => save(event, 'rooms')}>
       <label>Patalpos pavadinimas<input name="name" placeholder="Pvz., Kabinetas 212" maxLength={120} required /></label>
       <button disabled={busy || loading}>Pridėti patalpą</button>
     </form></section>
@@ -64,8 +66,8 @@ export default function Register({ session }) {
         <p>Skubus: trūko vamzdis, teka vanduo arba sugedusi spyna neleidžia patekti į patalpą ar jos užrakinti.</p>
         <button disabled={busy || loading || !rooms.length}>Registruoti gedimą</button>
       </form>
-    </section>
-    <section><h2>Mano patalpos ir gedimai</h2><button className="secondary" disabled={loading || busy} onClick={() => setRevision(value => value + 1)}>Atnaujinti sąrašą</button>
+    </section></div>
+    <section hidden={screen !== 'list'}><h2>Mano patalpos ir gedimai</h2><button className="secondary" disabled={loading || busy} onClick={() => setRevision(value => value + 1)}>Atnaujinti sąrašą</button>
       {loading ? <p role="status">Įkeliama…</p> : !rooms.length ? <p>Patalpų dar nėra.</p> : rooms.map(room => {
         const items = faults.filter(fault => fault.room_id === room.id);
         return <article key={room.id}><h3>{room.name}</h3>{!items.length ? <p>Gedimų nėra.</p> : <ul>{items.map(fault => <li key={fault.id}><span className={fault.priority === 'high' ? 'badge urgent' : 'badge'}>{fault.priority === 'high' ? 'Skubus' : 'Įprastas'}</span> {fault.title}</li>)}</ul>}</article>;
