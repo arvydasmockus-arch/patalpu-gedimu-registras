@@ -49,7 +49,7 @@ export default function Register({ session }) {
     finally { setBusy(false); }
   }
   return <>
-    <div className="account"><span>{session.user.email}</span><button className="secondary" disabled={busy} onClick={signOut}>Atsijungti</button></div>
+    <div className="account"><span>{session.user.user_metadata?.username || session.user.email?.split('@')[0]}</span><button className="secondary" disabled={busy} onClick={signOut}>Atsijungti</button></div>
     {error && <p role="alert" className="error">{error}</p>}<p role="status">{notice}</p>
     <section><h2>Pridėti patalpą</h2><form onSubmit={event => save(event, 'rooms')}>
       <label>Patalpos pavadinimas<input name="name" placeholder="Pvz., 204 kabinetas" maxLength={120} required /></label>
@@ -72,4 +72,3 @@ export default function Register({ session }) {
     </section>
   </>;
 }
-
