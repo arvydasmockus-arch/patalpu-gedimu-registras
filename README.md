@@ -48,7 +48,7 @@ SQL failą naujame projekte vykdykite vieną kartą – jis nėra skirtas pakart
 
 - Paprasta registracija ir prisijungimas vartotojo vardu bei slaptažodžiu, sesijos atkūrimas, atsijungimas.
 - Patalpos kūrimas, gedimo registravimas su įprastu arba skubiu prioritetu.
-- Savo patalpų ir gedimų sąrašas, gedimo pažymėjimas sutvarkytu ir atvėrimas iš naujo.
+- Savo patalpų ir gedimų sąrašas, gedimo pažymėjimas sutvarkytu ir atvėrimas iš naujo. Filtrai „Visi“, „Užregistruoti“, „Sutvarkyti“ su skaičiais leidžia matyti ir sutvarkytų gedimų istoriją.
 - SQL RLS: vartotojas pasiekia tik savo patalpas ir jų gedimus; neprisijungusiam prieiga nesuteikta.
 - Prisijungimas / registracija (`/prisijungimas`) ir trys puslapiai su navigacijos skirtukais: „Gedimų registras“ (`/gedimai`), „Registruoti gedimą“ (`/registruoti`), „Patalpos“ (`/patalpos`). Kiekvieną adresą galima atidaryti tiesiogiai ir atnaujinti. Vercel SPA perrašymas nustatytas `vercel.json`.
 - Keturios UI būsenos: įkėlimas, klaida su „Bandyti dar kartą“, tuščias sąrašas su kito veiksmo nuoroda ir sėkmės patvirtinimas po išsaugojimo. Tai atskira nuo gedimo būsenų „Užregistruota“ / „Sutvarkyta“.
